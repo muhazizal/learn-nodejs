@@ -1,0 +1,14 @@
+{
+  "name": "basics",
+  "version": "1.0.0",
+  "description": "Basic Node.JS app",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "author": "muhazizal",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
