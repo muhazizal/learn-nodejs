@@ -3,9 +3,16 @@ const express = require("express");
 const router = express.Router();
 const rootDirectory = require("../utils/pathHelper");
 
-// GET /
+const adminData = require("./admin");
+
+const products = adminData.products;
+
 router.get("/", (req, res, next) => {
-  res.sendFile(path.join(rootDirectory, "views", "shop.html"));
+  res.render("shop", {
+    pageTitle: "My Shop",
+    products,
+    path: "/",
+  });
 });
 
-module.exports = router;
+exports.routes = router;
