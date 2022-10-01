@@ -1,35 +1,53 @@
 const Product = require('../models/product')
 const Cart = require('../models/cart')
 
-exports.getProducts = (req, res, next) => {
-	Product.fetchAll((products) => {
-		res.render('shop/product-list', {
-			prods: products,
-			pageTitle: 'All Products',
-			path: '/products',
-		})
-	})
+exports.getProducts = async (req, res, next) => {
+	try {
+		const response = await Product.fetchAll()
+		if (response) {
+			const [products] = response
+			res.render('shop/product-list', {
+				prods: products,
+				pageTitle: 'All Products',
+				path: '/products',
+			})
+		}
+	} catch (error) {
+		console.log(error)
+	}
 }
 
-exports.getProduct = (req, res, next) => {
+exports.getProduct = async (req, res, next) => {
 	const { productId } = req.params
-	Product.findById(productId, (product) => {
-		res.render('shop/product-detail', {
-			product: product,
-			pageTitle: product.title,
-			path: '/products',
-		})
-	})
+	try {
+		const response = await Product.findById(productId)
+		if (response) {
+			const [product] = response
+			res.render('shop/product-detail', {
+				product: product[0],
+				pageTitle: product[0].title,
+				path: '/products',
+			})
+		}
+	} catch (error) {
+		console.log(error)
+	}
 }
 
-exports.getIndex = (req, res, next) => {
-	Product.fetchAll((products) => {
-		res.render('shop/index', {
-			prods: products,
-			pageTitle: 'Shop',
-			path: '/',
-		})
-	})
+exports.getIndex = async (req, res, next) => {
+	try {
+		const result = await Product.fetchAll()
+		if (result) {
+			const [products, fieldData] = result
+			res.render('shop/index', {
+				prods: products,
+				pageTitle: 'Shop',
+				path: '/',
+			})
+		}
+	} catch (error) {
+		console.log(error)
+	}
 }
 
 exports.getCart = (req, res, next) => {

@@ -8,11 +8,17 @@ exports.getAddProduct = (req, res, next) => {
 	})
 }
 
-exports.postAddProduct = (req, res, next) => {
+exports.postAddProduct = async (req, res, next) => {
 	const { title, imageUrl, price, description } = req.body
 	const product = new Product(null, title, imageUrl, description, price)
-	product.save()
-	res.redirect('/')
+	try {
+		const result = await product.save()
+		if (result) {
+			res.redirect('/')
+		}
+	} catch (error) {
+		console.log('postAddProduct error', error)
+	}
 }
 
 exports.getEditProduct = (req, res, next) => {
