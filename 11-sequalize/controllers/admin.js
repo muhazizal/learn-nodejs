@@ -10,25 +10,29 @@ exports.getAddProduct = (req, res, next) => {
 
 exports.postAddProduct = async (req, res, next) => {
 	const { title, imageUrl, price, description } = req.body
-	const product = new Product(null, title, imageUrl, description, price)
 	try {
-		const result = await product.save()
-		if (result) {
-			res.redirect('/')
+		const product = await Product.create({
+			title,
+			price,
+			imageUrl,
+			description,
+		})
+		if (product) {
+			console.log('postAddProduct response', product)
+			res.redirect('/admin/products')
 		}
 	} catch (error) {
 		console.log('postAddProduct error', error)
 	}
 }
 
-exports.getEditProduct = (req, res, next) => {
+exports.getEditProduct = async (req, res, next) => {
 	const { isEditing } = req.query
 	const { productId } = req.params
 	if (!isEditing || !productId) return res.redirect('/')
-	Product.findById(productId, (product) => {
-		if (!product) {
-			alert('Product not found')
-		} else {
+	try {
+		const product = await Product.findByPk(productId)
+		if (product) {
 			res.render('admin/edit-product', {
 				pageTitle: 'Edit Product',
 				path: '/admin/edit-product',
@@ -36,36 +40,61 @@ exports.getEditProduct = (req, res, next) => {
 				product: product,
 			})
 		}
-	})
+	} catch (error) {
+		console.log('getEditProduct error', error)
+	}
 }
 
-exports.postEditProduct = (req, res, next) => {
+exports.postEditProduct = async (req, res, next) => {
 	const { productId, title, imageUrl, price, description } = req.body
-	const updatedProduct = new Product(
-		productId,
-		title,
-		imageUrl,
-		description,
-		price
-	)
-	updatedProduct.save()
-	res.redirect('/admin/products')
+	try {
+		const product = await Product.findByPk(productId)
+		if (product) {
+			console.log('postEditProduct product', product)
+			product.title = title
+			product.imageUrl = imageUrl
+			product.price = price
+			product.description = description
+			const savedProduct = await product.save()
+			if (savedProduct) {
+				console.log('postEditProduct savedProduct', savedProduct)
+				res.redirect('/admin/products')
+			}
+		}
+	} catch (error) {
+		console.log('postEditProduct error', error)
+	}
 }
 
-exports.getProducts = (req, res, next) => {
-	Product.fetchAll((products) => {
-		res.render('admin/products', {
-			prods: products,
-			pageTitle: 'Admin Products',
-			path: '/admin/products',
-		})
-	})
+exports.getProducts = async (req, res, next) => {
+	try {
+		const products = await Product.findAll()
+		if (products) {
+			console.log('getProducts response', products)
+			res.render('admin/products', {
+				prods: products,
+				pageTitle: 'Admin Products',
+				path: '/admin/products',
+			})
+		}
+	} catch (error) {
+		console.log('getProducts error', error)
+	}
 }
 
-exports.postDeleteProduct = (req, res, next) => {
+exports.postDeleteProduct = async (req, res, next) => {
 	const { productId } = req.body
-	Product.deleteById(productId, () => {
-		console.log('Product has been deleted')
-		res.redirect('/admin/products')
-	})
+	try {
+		const product = await Product.findByPk(productId)
+		if (product) {
+			console.log('postDeleteProduct product', product)
+			const deletedProduct = await product.destroy()
+			if (deletedProduct) {
+				console.log('postDeleteProduct deletedProduct', deletedProduct)
+				res.redirect('/admin/products')
+			}
+		}
+	} catch (error) {
+		console.log('postDeleteProduct error', error)
+	}
 }
