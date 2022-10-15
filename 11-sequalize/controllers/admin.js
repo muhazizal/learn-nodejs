@@ -11,7 +11,7 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = async (req, res, next) => {
 	const { title, imageUrl, price, description } = req.body
 	try {
-		const product = await Product.create({
+		const product = await req.user.createProduct({
 			title,
 			price,
 			imageUrl,
@@ -31,7 +31,8 @@ exports.getEditProduct = async (req, res, next) => {
 	const { productId } = req.params
 	if (!isEditing || !productId) return res.redirect('/')
 	try {
-		const product = await Product.findByPk(productId)
+		const products = await req.user.getProducts({ where: { id: productId } })
+		const product = products[0]
 		if (product) {
 			res.render('admin/edit-product', {
 				pageTitle: 'Edit Product',
@@ -48,7 +49,8 @@ exports.getEditProduct = async (req, res, next) => {
 exports.postEditProduct = async (req, res, next) => {
 	const { productId, title, imageUrl, price, description } = req.body
 	try {
-		const product = await Product.findByPk(productId)
+		const products = await req.user.getProducts({ where: { id: productId } })
+		const product = products[0]
 		if (product) {
 			console.log('postEditProduct product', product)
 			product.title = title
@@ -68,7 +70,7 @@ exports.postEditProduct = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
 	try {
-		const products = await Product.findAll()
+		const products = await req.user.getProducts()
 		if (products) {
 			console.log('getProducts response', products)
 			res.render('admin/products', {
@@ -85,7 +87,8 @@ exports.getProducts = async (req, res, next) => {
 exports.postDeleteProduct = async (req, res, next) => {
 	const { productId } = req.body
 	try {
-		const product = await Product.findByPk(productId)
+		const products = await req.user.getProducts({ where: { id: productId } })
+		const product = products[0]
 		if (product) {
 			console.log('postDeleteProduct product', product)
 			const deletedProduct = await product.destroy()
