@@ -72,7 +72,7 @@ sequelize
 		return user.createCart()
 	})
 	.then((_cart) => {
-		app.listen(3000)
+		app.listen(3001)
 	})
 	.catch((error) => {
 		console.log('sequelize sync error', error)
