@@ -4,6 +4,8 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const multer = require('multer')
+const http = require('http')
+const socket = require('./socket')
 
 // RUOTES
 const feedRoutes = require('./routes/feed')
@@ -68,9 +70,18 @@ mongoose
 	.connect(
 		'mongodb+srv://test:muhazizal@main.q93mkgc.mongodb.net/?retryWrites=true&w=majority&appName=main'
 	)
-	.then((res) => {
+	.then(async (res) => {
 		console.log('Database Connected!')
-		app.listen(8080)
+
+		// Server
+		const server = http.createServer(app)
+
+		// Web Socket
+		const io = socket.init(server)
+
+		io.on('connection', () => console.log('Socket Connected!'))
+
+		server.listen(8080, () => console.log('Server listening on port: 8080'))
 	})
 	.catch((error) => {
 		console.log('app.js Error: ', error)
